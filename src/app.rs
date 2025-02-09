@@ -1,8 +1,7 @@
 use eframe::egui::{self, CollapsingHeader, Ui};
 use eframe::{Frame, Storage};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-
+use crate::*;
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct StateManagementApp {
     pub item_types: Vec<ItemType>,
@@ -12,28 +11,6 @@ pub struct StateManagementApp {
     pub new_transition: NewTransition,
 }
 
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
-pub struct ItemType {
-    pub name: String,
-    pub states: Vec<String>,
-    pub state_counts: HashMap<String, u32>,
-}
-
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
-pub struct Transition {
-    pub name: String,
-    pub item_type: String,
-    pub from_state: String,
-    pub to_state: String,
-}
-
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
-pub struct NewTransition {
-    pub name: String,
-    pub item_type: String,
-    pub from_state: String,
-    pub to_state: String,
-}
 
 impl eframe::App for StateManagementApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
@@ -73,18 +50,14 @@ impl StateManagementApp {
             ui.text_edit_singleline(&mut self.new_item_type_name);
             if ui.button("Add").clicked() {
                 let name = self.new_item_type_name.trim().to_string();
-                if !name.is_empty() && !self.item_types.iter().any(|i| i.name == name) {
-                    self.item_types.push(ItemType {
-                        name,
-                        states: Vec::new(),
-                        state_counts: HashMap::new(),
-                    });
+                if !name.is_empty() && !self.item_types.iter().any(|i| i.name() == name) {
+                    self.item_types.push(ItemType::new(name));
                     self.new_item_type_name.clear();
                 }
             }
         }); // 管理现有物品类型
         for item in &mut self.item_types {
-            ui.collapsing(&item.name, |ui| {
+            ui.collapsing(item.name().to_owned(), |ui| {
                 // 添加新状态
                 ui.horizontal(|ui| {
                     ui.label("Add state:");
@@ -129,8 +102,8 @@ impl StateManagementApp {
                 for item in &self.item_types {
                     ui.selectable_value(
                         &mut self.new_transition.item_type,
-                        item.name.clone(),
-                        &item.name,
+                        item.name().to_string(),
+                        item.name(),
                     );
                 }
             });
@@ -139,7 +112,7 @@ impl StateManagementApp {
         if let Some(item) = self
             .item_types
             .iter()
-            .find(|i| i.name == self.new_transition.item_type)
+            .find(|i| i.name() == self.new_transition.item_type)
         {
             egui::ComboBox::from_label("From State")
                 .selected_text(&self.new_transition.from_state)
@@ -191,7 +164,7 @@ impl StateManagementApp {
                     if let Some(item) = self
                         .item_types
                         .iter_mut()
-                        .find(|i| i.name == transition.item_type)
+                        .find(|i| i.name() == transition.item_type)
                     {
                         if let Some(count) = item.state_counts.remove(&transition.from_state) {
                             *item
@@ -208,8 +181,8 @@ impl StateManagementApp {
     fn show_current_state(&self, ui: &mut Ui) {
         ui.heading("Current State");
         for item in &self.item_types {
-            CollapsingHeader::new(&item.name)
-                .id_salt(item.name.to_uppercase())
+            CollapsingHeader::new(item.name())
+                .id_salt(item.name().to_uppercase())
                 .show(ui, |ui| {
                     for state in &item.states {
                         if let Some(count) = item.state_counts.get(state) {
