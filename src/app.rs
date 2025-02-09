@@ -2,13 +2,16 @@ use crate::*;
 use eframe::egui::{self, Ui};
 use eframe::{Frame, Storage};
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+use std::time::Instant;
+#[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct StateManagementApp {
     pub item_types: Vec<ItemType>,
     pub actions: Vec<Action>,
     pub new_state_name: String,
     pub new_item_type_name: String,
     pub new_action: Action,
+    #[serde(skip)]
+    pub error_start_time: Option<Instant>,
 }
 
 impl eframe::App for StateManagementApp {
@@ -17,7 +20,7 @@ impl eframe::App for StateManagementApp {
             self.manage_item_types(ui);
             self.manage_actions(ui);
             self.execute_actions(ui);
-            self.show_current_state(ui);
+            self.manage_state(ui);
         });
     }
 
@@ -41,36 +44,29 @@ impl StateManagementApp {
     }
 
     fn manage_item_types(&mut self, ui: &mut Ui) {
-        ui.heading("Manage Item Types");
-
-        // 添加新物品类型
-        ui.horizontal(|ui| {
-            ui.label("New item type:");
-            ui.text_edit_singleline(&mut self.new_item_type_name);
-            if ui.button("Add").clicked() {
-                let name = self.new_item_type_name.trim().to_string();
-                if !name.is_empty() && !self.item_types.iter().any(|i| i.name() == name) {
-                    self.item_types.push(ItemType::new(name));
-                    self.new_item_type_name.clear();
-                }
+        ui.heading("类型管理");
+        ui.label("新类型：");
+        ui.text_edit_singleline(&mut self.new_item_type_name);
+        if ui.button("添加").clicked() {
+            let name = self.new_item_type_name.trim().to_string();
+            if !name.is_empty() && !self.item_types.iter().any(|i| i.name() == name) {
+                self.item_types.push(ItemType::new(name));
+                self.new_item_type_name.clear();
             }
-        }); // 管理现有物品类型
-        for item in &mut self.item_types {
-            item.show(ui, &mut self.new_state_name);
         }
     }
 
     fn manage_actions(&mut self, ui: &mut Ui) {
-        ui.heading("Manage actions");
+        ui.heading("任务管理");
 
         // 过渡规则表单
         ui.horizontal(|ui| {
-            ui.label("Task name:");
+            ui.label("任务名称");
             ui.text_edit_singleline(&mut self.new_action.name);
         });
 
         // 物品类型选择
-        egui::ComboBox::from_label("Item Type")
+        egui::ComboBox::from_label("物品类型")
             .selected_text(&self.new_action.item_type)
             .show_ui(ui, |ui| {
                 for item in &self.item_types {
@@ -88,20 +84,21 @@ impl StateManagementApp {
             .iter()
             .find(|i| i.name() == self.new_action.item_type)
         {
-            egui::ComboBox::from_label("From State")
-                .selected_text(&self.new_action.from_state)
-                .show_ui(ui, |ui| {
-                    // item.show_select_state(ui, &mut self.new_action.from_state)
-                });
+            todo!();
+            // egui::ComboBox::from_label("From State")
+            //     .selected_text(&self.new_action.from_state)
+            //     .show_ui(ui, |ui| {
+            //         // item.show_select_state(ui, &mut self.new_action.from_state)
+            //     });
 
-            egui::ComboBox::from_label("To State")
-                .selected_text(&self.new_action.to_state)
-                .show_ui(ui, |ui| {
-                    // item.show_select_state(ui, &mut self.new_action.to_state)
-                });
+            // egui::ComboBox::from_label("To State")
+            //     .selected_text(&self.new_action.to_state)
+            //     .show_ui(ui, |ui| {
+            //         // item.show_select_state(ui, &mut self.new_action.to_state)
+            //     });
         }
 
-        if ui.button("Add action").clicked()
+        if ui.button("添加").clicked()
             && !self.new_action.name.is_empty()
             && !self.new_action.item_type.is_empty()
             && !self.new_action.from_state.is_empty()
@@ -128,10 +125,10 @@ impl StateManagementApp {
         }
     }
 
-    fn show_current_state(&self, ui: &mut Ui) {
+    fn manage_state(&mut self, ui: &mut Ui) {
         ui.heading("Current State");
-        for item in &self.item_types {
-            item.show_counts(ui)
+        for item in &mut self.item_types {
+            item.show(ui, &mut self.new_state_name)
         }
     }
 }

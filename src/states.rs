@@ -1,15 +1,26 @@
+use std::time::Instant;
+
 use crate::*;
 use eframe::egui::{Color32, Ui};
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
-pub struct States(Vec<State>);
+pub struct States {
+    states: Vec<State>,
+    #[serde(skip)]
+    instant: Option<Instant>,
+}
 
 impl States {
+    const ERROR_TIMEOUT_SEC: u64 = 1;
+    fn should_show_error(&self) -> bool {
+        self.instant
+            .is_some_and(|inst| inst.elapsed().as_secs() < Self::ERROR_TIMEOUT_SEC)
+    }
     fn get_new_id(&self) -> u32 {
-        self.0.last().unwrap_or(&Default::default()).id() + 1
+        self.states.last().unwrap_or(&Default::default()).id() + 1
     }
     fn iter(&self) -> impl Iterator<Item = &State> {
-        self.0.iter()
+        self.states.iter()
     }
     fn not_contain(&self, name: &str) -> bool {
         !self.iter().any(|s| s.name() == name)
@@ -20,13 +31,20 @@ impl States {
             .then(|| {
                 let id = self.get_new_id();
                 let state = State::new(name, id);
-                self.0.push(state);
+                self.states.push(state);
             })
             .ok_or(())
     }
-    pub fn selectable_value(&self, ui: &mut Ui, current: &mut State) {
+    pub fn show_select_state(&self, ui: &mut Ui, current: &mut State) {
         self.iter().for_each(|state| {
-            ui.selectable_value(current, state.clone(), state.name());
+            let selected_value = state.clone();
+            let text = state.name();
+            if ui
+                .selectable_label(*current == selected_value, text)
+                .clicked()
+            {
+                *current = state.clone();
+            }
         });
     }
     pub fn value(&self, state: &State) -> Option<u32> {
@@ -49,11 +67,12 @@ impl States {
                 if !trim_name.is_empty() {
                     match self.try_add_state(trim_name) {
                         Ok(_) => state_name.clear(),
-                        Err(_) => {
-                            ui.colored_label(Color32::RED, "状态已存在");
-                        }
+                        Err(_) => self.instant = Some(Instant::now()),
                     }
                 }
+            }
+            if self.should_show_error() {
+                ui.colored_label(Color32::RED, "状态已存在");
             }
         });
     }
