@@ -20,4 +20,7 @@ impl State {
     pub fn count(&self) -> u32 {
         self.count
     }
+    pub fn id(&self) -> u32 {
+        self.id
+    }
 }
