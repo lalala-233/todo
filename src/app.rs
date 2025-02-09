@@ -1,5 +1,5 @@
 use crate::*;
-use eframe::egui::{self, CollapsingHeader, Ui};
+use eframe::egui::{self, Ui};
 use eframe::{Frame, Storage};
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
@@ -91,25 +91,13 @@ impl StateManagementApp {
             egui::ComboBox::from_label("From State")
                 .selected_text(&self.new_transition.from_state)
                 .show_ui(ui, |ui| {
-                    for state in &item.states {
-                        ui.selectable_value(
-                            &mut self.new_transition.from_state,
-                            state.clone(),
-                            state,
-                        );
-                    }
+                    item.show_select_state(ui, &mut self.new_transition.from_state)
                 });
 
             egui::ComboBox::from_label("To State")
                 .selected_text(&self.new_transition.to_state)
                 .show_ui(ui, |ui| {
-                    for state in &item.states {
-                        ui.selectable_value(
-                            &mut self.new_transition.to_state,
-                            state.clone(),
-                            state,
-                        );
-                    }
+                    item.show_select_state(ui, &mut self.new_transition.to_state)
                 });
         }
 
@@ -155,15 +143,7 @@ impl StateManagementApp {
     fn show_current_state(&self, ui: &mut Ui) {
         ui.heading("Current State");
         for item in &self.item_types {
-            CollapsingHeader::new(item.name())
-                .id_salt(item.name().to_uppercase())
-                .show(ui, |ui| {
-                    for state in &item.states {
-                        if let Some(count) = item.state_counts.get(state) {
-                            ui.label(format!("{}: {}", state, count));
-                        }
-                    }
-                });
+            item.show_counts(ui)
         }
     }
 }

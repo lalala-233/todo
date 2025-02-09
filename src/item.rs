@@ -1,14 +1,34 @@
-use eframe::egui::{self, Ui};
+use eframe::egui::{self, CollapsingHeader, Ui};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct ItemType {
     name: String,
-    pub states: Vec<String>,
+    states: Vec<String>,
     pub state_counts: HashMap<String, u32>,
 }
 
 impl ItemType {
+    pub fn show_select_state(&self, ui: &mut Ui, current: &mut String) {
+        for state in self.states() {
+            ui.selectable_value(current, state.clone(), state);
+        }
+    }
+    fn states(&self) -> impl Iterator<Item = &String> {
+        self.states.iter()
+    }
+    pub fn show_counts(&self, ui: &mut Ui) {
+        CollapsingHeader::new(self.name())
+            .id_salt(self.name().to_uppercase()) // 为了防止和 show() 出现冲突
+            .show(ui, |ui| {
+                for state in self.states() {
+                    ui.label(format!("{}: {}", state, self.get_counts(state)));
+                }
+            });
+    }
+    fn get_counts(&self, state: &String) -> u32 {
+        *self.state_counts.get(state).unwrap()
+    }
     pub fn show(&mut self, ui: &mut Ui, new_state: &mut String) {
         ui.collapsing(self.name().to_owned(), |ui| {
             self.ui_add_state(ui, new_state);
