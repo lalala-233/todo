@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct StateManagementApp {
     pub item_types: Vec<ItemType>,
     pub actions: Vec<Action>,
-    pub new_state: State,
+    pub new_state_name: String,
     pub new_item_type_name: String,
     pub new_action: Action,
 }
@@ -56,7 +56,7 @@ impl StateManagementApp {
             }
         }); // 管理现有物品类型
         for item in &mut self.item_types {
-            item.show(ui, &mut self.new_state);
+            item.show(ui, &mut self.new_state_name);
         }
     }
 
