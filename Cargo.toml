@@ -1,6 +1,6 @@
 [package]
 name = "my_app"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
 
 [dependencies]
@@ -10,7 +10,7 @@ eframe = { version = "0.31", features = ["persistence"] }
 log = "0.4"
 rfd = "0.15"
 env_logger = "0.11"
-strum = { version = "0.26", features = ["derive"] }
+strum = { version = "0.27", features = ["derive"] }
 regex = "1.0"
 directories = "6.0"
 anyhow = "1.0"

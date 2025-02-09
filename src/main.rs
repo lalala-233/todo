@@ -1,8 +1,4 @@
-mod font;
-mod models;
-mod ui;
-
-use crate::models::StateManagementApp;
+use my_app::StateManagementApp;
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions::default();
