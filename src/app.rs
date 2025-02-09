@@ -8,7 +8,7 @@ pub struct StateManagementApp {
     pub actions: Vec<Action>,
     pub new_state: String,
     pub new_item_type_name: String,
-    pub new_action: NewAction,
+    pub new_action: Action,
 }
 
 impl eframe::App for StateManagementApp {
@@ -107,13 +107,8 @@ impl StateManagementApp {
             && !self.new_action.from_state.is_empty()
             && !self.new_action.to_state.is_empty()
         {
-            self.actions.push(Action {
-                name: self.new_action.name.clone(),
-                item_type: self.new_action.item_type.clone(),
-                from_state: self.new_action.from_state.clone(),
-                to_state: self.new_action.to_state.clone(),
-            });
-            self.new_action = NewAction::default();
+            self.actions.push(self.new_action.clone());
+            self.new_action = Action::default();
         }
     }
 
