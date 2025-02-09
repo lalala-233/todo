@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct StateManagementApp {
     pub item_types: Vec<ItemType>,
     pub actions: Vec<Action>,
-    pub new_state: String,
+    pub new_state: State,
     pub new_item_type_name: String,
     pub new_action: Action,
 }
@@ -91,13 +91,13 @@ impl StateManagementApp {
             egui::ComboBox::from_label("From State")
                 .selected_text(&self.new_action.from_state)
                 .show_ui(ui, |ui| {
-                    item.show_select_state(ui, &mut self.new_action.from_state)
+                    // item.show_select_state(ui, &mut self.new_action.from_state)
                 });
 
             egui::ComboBox::from_label("To State")
                 .selected_text(&self.new_action.to_state)
                 .show_ui(ui, |ui| {
-                    item.show_select_state(ui, &mut self.new_action.to_state)
+                    // item.show_select_state(ui, &mut self.new_action.to_state)
                 });
         }
 
