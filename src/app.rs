@@ -1,7 +1,7 @@
+use crate::*;
 use eframe::egui::{self, CollapsingHeader, Ui};
 use eframe::{Frame, Storage};
 use serde::{Deserialize, Serialize};
-use crate::*;
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct StateManagementApp {
     pub item_types: Vec<ItemType>,
@@ -10,7 +10,6 @@ pub struct StateManagementApp {
     pub new_item_type_name: String,
     pub new_transition: NewTransition,
 }
-
 
 impl eframe::App for StateManagementApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
@@ -57,32 +56,7 @@ impl StateManagementApp {
             }
         }); // 管理现有物品类型
         for item in &mut self.item_types {
-            ui.collapsing(item.name().to_owned(), |ui| {
-                // 添加新状态
-                ui.horizontal(|ui| {
-                    ui.label("Add state:");
-                    let new_state = &mut self.new_state;
-                    ui.text_edit_singleline(new_state);
-                    if ui.button("Add").clicked() {
-                        let state = new_state.trim().to_string();
-                        if !state.is_empty() && !item.states.contains(&state) {
-                            item.states.push(state.clone());
-                            item.state_counts.insert(state, 0);
-                            self.new_state.clear();
-                        }
-                    }
-                });
-
-                // 管理状态数量
-                ui.label("State counts:");
-                for state in &item.states {
-                    ui.horizontal(|ui| {
-                        ui.label(format!("{}:", state));
-                        let count = item.state_counts.entry(state.clone()).or_insert(0);
-                        ui.add(egui::DragValue::new(count).range(0..=9999));
-                    });
-                }
-            });
+            item.show(ui, &mut self.new_state);
         }
     }
 
