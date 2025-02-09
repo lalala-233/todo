@@ -5,18 +5,18 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct StateManagementApp {
     pub item_types: Vec<ItemType>,
-    pub transitions: Vec<Transition>,
+    pub actions: Vec<Action>,
     pub new_state: String,
     pub new_item_type_name: String,
-    pub new_transition: NewTransition,
+    pub new_action: NewAction,
 }
 
 impl eframe::App for StateManagementApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             self.manage_item_types(ui);
-            self.manage_transitions(ui);
-            self.execute_transitions(ui);
+            self.manage_actions(ui);
+            self.execute_actions(ui);
             self.show_current_state(ui);
         });
     }
@@ -60,22 +60,22 @@ impl StateManagementApp {
         }
     }
 
-    fn manage_transitions(&mut self, ui: &mut Ui) {
-        ui.heading("Manage Transitions");
+    fn manage_actions(&mut self, ui: &mut Ui) {
+        ui.heading("Manage actions");
 
         // 过渡规则表单
         ui.horizontal(|ui| {
             ui.label("Task name:");
-            ui.text_edit_singleline(&mut self.new_transition.name);
+            ui.text_edit_singleline(&mut self.new_action.name);
         });
 
         // 物品类型选择
         egui::ComboBox::from_label("Item Type")
-            .selected_text(&self.new_transition.item_type)
+            .selected_text(&self.new_action.item_type)
             .show_ui(ui, |ui| {
                 for item in &self.item_types {
                     ui.selectable_value(
-                        &mut self.new_transition.item_type,
+                        &mut self.new_action.item_type,
                         item.name().to_string(),
                         item.name(),
                     );
@@ -86,55 +86,48 @@ impl StateManagementApp {
         if let Some(item) = self
             .item_types
             .iter()
-            .find(|i| i.name() == self.new_transition.item_type)
+            .find(|i| i.name() == self.new_action.item_type)
         {
             egui::ComboBox::from_label("From State")
-                .selected_text(&self.new_transition.from_state)
+                .selected_text(&self.new_action.from_state)
                 .show_ui(ui, |ui| {
-                    item.show_select_state(ui, &mut self.new_transition.from_state)
+                    item.show_select_state(ui, &mut self.new_action.from_state)
                 });
 
             egui::ComboBox::from_label("To State")
-                .selected_text(&self.new_transition.to_state)
+                .selected_text(&self.new_action.to_state)
                 .show_ui(ui, |ui| {
-                    item.show_select_state(ui, &mut self.new_transition.to_state)
+                    item.show_select_state(ui, &mut self.new_action.to_state)
                 });
         }
 
-        if ui.button("Add Transition").clicked()
-            && !self.new_transition.name.is_empty()
-            && !self.new_transition.item_type.is_empty()
-            && !self.new_transition.from_state.is_empty()
-            && !self.new_transition.to_state.is_empty()
+        if ui.button("Add action").clicked()
+            && !self.new_action.name.is_empty()
+            && !self.new_action.item_type.is_empty()
+            && !self.new_action.from_state.is_empty()
+            && !self.new_action.to_state.is_empty()
         {
-            self.transitions.push(Transition {
-                name: self.new_transition.name.clone(),
-                item_type: self.new_transition.item_type.clone(),
-                from_state: self.new_transition.from_state.clone(),
-                to_state: self.new_transition.to_state.clone(),
+            self.actions.push(Action {
+                name: self.new_action.name.clone(),
+                item_type: self.new_action.item_type.clone(),
+                from_state: self.new_action.from_state.clone(),
+                to_state: self.new_action.to_state.clone(),
             });
-            self.new_transition = NewTransition::default();
+            self.new_action = NewAction::default();
         }
     }
 
-    fn execute_transitions(&mut self, ui: &mut Ui) {
-        ui.heading("Execute Transitions");
-        for transition in &self.transitions {
+    fn execute_actions(&mut self, ui: &mut Ui) {
+        ui.heading("Execute actions");
+        for action in &self.actions {
             ui.horizontal(|ui| {
-                ui.label(&transition.name);
+                ui.label(&action.name);
                 if ui.button("Execute").clicked() {
-                    if let Some(item) = self
-                        .item_types
+                    self.item_types
                         .iter_mut()
-                        .find(|i| i.name() == transition.item_type)
-                    {
-                        if let Some(count) = item.state_counts.remove(&transition.from_state) {
-                            *item
-                                .state_counts
-                                .entry(transition.to_state.clone())
-                                .or_insert(0) += count;
-                        }
-                    }
+                        .find(|i| i.name() == action.item_type)
+                        .unwrap()
+                        .execute(action);
                 }
             });
         }

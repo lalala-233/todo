@@ -1,7 +1,7 @@
+mod action;
 mod app;
 mod font;
 mod item;
-mod transition;
+use action::{Action, NewAction};
 pub use app::StateManagementApp;
 use item::ItemType;
-use transition::{NewTransition, Transition};

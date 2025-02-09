@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
-pub struct Transition {
+pub struct Action {
     pub name: String,
     pub item_type: String,
     pub from_state: String,
@@ -9,7 +9,7 @@ pub struct Transition {
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
-pub struct NewTransition {
+pub struct NewAction {
     pub name: String,
     pub item_type: String,
     pub from_state: String,

@@ -1,14 +1,19 @@
 use eframe::egui::{self, CollapsingHeader, Ui};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use crate::*;
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 pub struct ItemType {
     name: String,
     states: Vec<String>,
-    pub state_counts: HashMap<String, u32>,
+    //TODO: 将 State 改为 Struct
+    state_counts: HashMap<String, u32>,
 }
 
 impl ItemType {
+    pub fn execute(&mut self, _action: &Action) {
+        todo!()
+    }
     pub fn show_select_state(&self, ui: &mut Ui, current: &mut String) {
         for state in self.states() {
             ui.selectable_value(current, state.clone(), state);
