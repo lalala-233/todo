@@ -59,44 +59,42 @@ impl StateManagementApp {
 
     fn manage_actions(&mut self, ui: &mut Ui) {
         ui.heading("任务管理");
+        // // 过渡规则表单
+        // ui.horizontal(|ui| {
+        //     ui.label("任务名称");
+        //     ui.text_edit_singleline(&mut self.new_action.name);
+        // });
 
-        // 过渡规则表单
-        ui.horizontal(|ui| {
-            ui.label("任务名称");
-            ui.text_edit_singleline(&mut self.new_action.name);
-        });
+        // // 物品类型选择
+        // egui::ComboBox::from_label("物品类型")
+        //     .selected_text(&self.new_action.item_type)
+        //     .show_ui(ui, |ui| {
+        //         for item in &self.item_types {
+        //             ui.selectable_value(
+        //                 &mut self.new_action.item_type,
+        //                 item.name().to_string(),
+        //                 item.name(),
+        //             );
+        //         }
+        //     });
 
-        // 物品类型选择
-        egui::ComboBox::from_label("物品类型")
-            .selected_text(&self.new_action.item_type)
-            .show_ui(ui, |ui| {
-                for item in &self.item_types {
-                    ui.selectable_value(
-                        &mut self.new_action.item_type,
-                        item.name().to_string(),
-                        item.name(),
-                    );
-                }
-            });
-
-        // 状态选择（需要先选择物品类型）
-        if let Some(item) = self
-            .item_types
-            .iter()
-            .find(|i| i.name() == self.new_action.item_type)
-        {
-            todo!()
-            // egui::ComboBox::from_label("From State")
-            //     .selected_text(&self.new_action.from_state)
-            //     .show_ui(ui, |ui| {
-            //         item.show_select_state(ui, &mut self.new_action.from_state)
-            //     });
-            // egui::ComboBox::from_label("To State")
-            //     .selected_text(&self.new_action.to_state)
-            //     .show_ui(ui, |ui| {
-            //         item.show_select_state(ui, &mut self.new_action.to_state)
-            //     });
-        }
+        // // 状态选择（需要先选择物品类型）
+        // if let Some(item) = self
+        //     .item_types
+        //     .iter()
+        //     .find(|i| i.name() == self.new_action.item_type)
+        // {
+        //     egui::ComboBox::from_label("From State")
+        //         .selected_text(&self.new_action.from_state)
+        //         .show_ui(ui, |ui| {
+        //             item.show_select_state(ui, &mut self.new_action.from_state)
+        //         });
+        //     egui::ComboBox::from_label("To State")
+        //         .selected_text(&self.new_action.to_state)
+        //         .show_ui(ui, |ui| {
+        //             item.show_select_state(ui, &mut self.new_action.to_state)
+        //         });
+        // }
 
         // if ui.button("添加").clicked() && self.new_action.is_empty() {
         //     self.actions.push(self.new_action.clone());
@@ -108,14 +106,15 @@ impl StateManagementApp {
         ui.heading("Execute actions");
         for action in &self.actions {
             ui.horizontal(|ui| {
-                ui.label(&action.name);
-                if ui.button("Execute").clicked() {
-                    self.item_types
-                        .iter_mut()
-                        .find(|i| i.name() == action.item_type)
-                        .unwrap()
-                        .execute(action);
-                }
+                todo!();
+                // ui.label(&action.name);
+                // if ui.button("Execute").clicked() {
+                // self.item_types
+                //     .iter_mut()
+                //     .find(|i| i.name() == action.item_type)
+                //     .unwrap()
+                //     .execute(action);
+                // }
             });
         }
     }

@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
 pub struct Action {
-    pub name: String,
-    pub item_type: String,
-    pub from_state: State,
-    pub to_state: State,
+    name: String,
+    item_type: String,
+    from_state: State,
+    to_state: State,
 }
