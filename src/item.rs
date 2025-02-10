@@ -3,13 +3,13 @@ use eframe::egui::{CollapsingHeader, Ui};
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
-pub struct ItemType {
+pub struct Item {
     name: String,
     states: States,
 }
 
-impl ItemType {
-    pub fn execute(&mut self, _action: &Action) {
+impl Item {
+    pub fn execute(&mut self, action: &Action) {
         todo!()
     }
     pub fn show_select_state(&self, ui: &mut Ui, current: &mut State) {

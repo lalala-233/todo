@@ -1,8 +1,7 @@
-use std::time::Instant;
-
 use crate::*;
 use eframe::egui::{Color32, Ui};
 use serde::{Deserialize, Serialize};
+use std::time::Instant;
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
 pub struct States {
@@ -27,7 +26,7 @@ impl States {
         !self.iter().any(|s| s.name() == name)
     }
     /// 名字存在时返回 Err
-    fn try_add_state(&mut self, name: String) -> Result<(), ()> {
+    fn try_add(&mut self, name: String) -> Result<(), ()> {
         self.not_contain(&name)
             .then(|| {
                 let id = self.get_new_id();
@@ -66,7 +65,7 @@ impl States {
             if ui.button("添加").clicked() {
                 let trim_name = state_name.trim().to_string();
                 if !trim_name.is_empty() {
-                    match self.try_add_state(trim_name) {
+                    match self.try_add(trim_name) {
                         Ok(_) => state_name.clear(),
                         Err(_) => self.instant = Some(Instant::now()),
                     }

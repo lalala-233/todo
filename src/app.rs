@@ -6,7 +6,7 @@ use std::time::Instant;
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 #[serde(default)]
 pub struct StateManagementApp {
-    pub item_types: Vec<ItemType>,
+    pub items: Vec<Item>,
     pub actions: Vec<Action>,
     pub new_state_name: String,
     pub new_item_type_name: String,
@@ -50,8 +50,8 @@ impl StateManagementApp {
         ui.text_edit_singleline(&mut self.new_item_type_name);
         if ui.button("添加").clicked() {
             let name = self.new_item_type_name.trim().to_string();
-            if !name.is_empty() && !self.item_types.iter().any(|i| i.name() == name) {
-                self.item_types.push(ItemType::new(name));
+            if !name.is_empty() && !self.items.iter().any(|i| i.name() == name) {
+                self.items.push(Item::new(name));
                 self.new_item_type_name.clear();
             }
         }
@@ -121,7 +121,7 @@ impl StateManagementApp {
 
     fn manage_state(&mut self, ui: &mut Ui) {
         ui.heading("Current State");
-        for item in &mut self.item_types {
+        for item in &mut self.items {
             item.show(ui, &mut self.new_state_name)
         }
     }
