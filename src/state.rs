@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[serde(default)]
 pub struct State {
     id: u32,
     name: String,

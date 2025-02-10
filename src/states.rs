@@ -4,6 +4,7 @@ use crate::*;
 use eframe::egui::{Color32, Ui};
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[serde(default)]
 pub struct States {
     states: Vec<State>,
     #[serde(skip)]
@@ -11,10 +12,10 @@ pub struct States {
 }
 
 impl States {
-    const ERROR_TIMEOUT_SEC: u64 = 1;
+    const ERROR_TIMEOUT_MILLIS: u128 = 618;
     fn should_show_error(&self) -> bool {
         self.instant
-            .is_some_and(|inst| inst.elapsed().as_secs() < Self::ERROR_TIMEOUT_SEC)
+            .is_some_and(|inst| inst.elapsed().as_millis() < Self::ERROR_TIMEOUT_MILLIS)
     }
     fn get_new_id(&self) -> u32 {
         self.states.last().unwrap_or(&Default::default()).id() + 1

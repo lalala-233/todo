@@ -4,6 +4,7 @@ use eframe::{Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[serde(default)]
 pub struct StateManagementApp {
     pub item_types: Vec<ItemType>,
     pub actions: Vec<Action>,
@@ -84,29 +85,23 @@ impl StateManagementApp {
             .iter()
             .find(|i| i.name() == self.new_action.item_type)
         {
-            todo!();
+            todo!()
             // egui::ComboBox::from_label("From State")
             //     .selected_text(&self.new_action.from_state)
             //     .show_ui(ui, |ui| {
-            //         // item.show_select_state(ui, &mut self.new_action.from_state)
+            //         item.show_select_state(ui, &mut self.new_action.from_state)
             //     });
-
             // egui::ComboBox::from_label("To State")
             //     .selected_text(&self.new_action.to_state)
             //     .show_ui(ui, |ui| {
-            //         // item.show_select_state(ui, &mut self.new_action.to_state)
+            //         item.show_select_state(ui, &mut self.new_action.to_state)
             //     });
         }
 
-        if ui.button("添加").clicked()
-            && !self.new_action.name.is_empty()
-            && !self.new_action.item_type.is_empty()
-            && !self.new_action.from_state.is_empty()
-            && !self.new_action.to_state.is_empty()
-        {
-            self.actions.push(self.new_action.clone());
-            self.new_action = Action::default();
-        }
+        // if ui.button("添加").clicked() && self.new_action.is_empty() {
+        //     self.actions.push(self.new_action.clone());
+        //     self.new_action = Action::default();
+        // }
     }
 
     fn execute_actions(&mut self, ui: &mut Ui) {

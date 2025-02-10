@@ -2,6 +2,7 @@ use crate::*;
 use eframe::egui::{CollapsingHeader, Ui};
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[serde(default)]
 pub struct ItemType {
     name: String,
     states: States,
@@ -11,7 +12,7 @@ impl ItemType {
     pub fn execute(&mut self, _action: &Action) {
         todo!()
     }
-    fn show_select_state(&self, ui: &mut Ui, current: &mut State) {
+    pub fn show_select_state(&self, ui: &mut Ui, current: &mut State) {
         self.states.show_select_state(ui, current);
     }
     fn get_counts(&self, state: &State) -> u32 {
