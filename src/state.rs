@@ -1,5 +1,6 @@
 use crate::*;
 use serde::{Deserialize, Serialize};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
 pub struct State {
@@ -14,6 +15,7 @@ impl PartialEq for State {
 }
 
 impl Entity for State {
+    type Data = u32;
     fn created_time(&self) -> u128 {
         self.created_time
     }
@@ -30,14 +32,7 @@ impl Entity for State {
         }
     }
 
-    type Data = u32;
-
     fn data(&self) -> Self::Data {
         todo!()
-    }
-}
-impl State {
-    pub fn count(&self) -> u32 {
-        self.count
     }
 }

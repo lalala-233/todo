@@ -75,6 +75,6 @@ impl<T: Entity + Clone> Collection<T> {
     }
 }
 
-type States = Collection<State>;
-type Items = Collection<Item>;
-type Actions = Collection<Action>;
+pub type States = Collection<State>;
+pub type Items = Collection<Item>;
+pub type Actions = Collection<Action>;
