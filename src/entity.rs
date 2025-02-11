@@ -1,16 +1,19 @@
+use crate::*;
+use eframe::egui::{CollapsingHeader, Ui};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt::Display,
+    ops::{Deref, DerefMut},
     time::{SystemTime, UNIX_EPOCH},
 };
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
-pub struct Entity<T: Default + Clone + Display> {
+pub struct Entity<T: Default + Clone> {
     name: String,
     created_time: u128,
     data: T,
 }
-impl<T: Default + Clone + Display> Entity<T> {
+impl<T: Default + Clone> Entity<T> {
     fn get_created_time() -> u128 {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -23,9 +26,6 @@ impl<T: Default + Clone + Display> Entity<T> {
     pub fn name(&self) -> &str {
         &self.name
     }
-    pub fn data(&self) -> &T {
-        &self.data
-    }
     pub fn new(name: String) -> Self {
         Self {
             name,
@@ -34,9 +34,30 @@ impl<T: Default + Clone + Display> Entity<T> {
         }
     }
 }
-impl<T: Default + Clone + Display> PartialEq for Entity<T> {
+impl<T: Default + Clone> PartialEq for Entity<T> {
     fn eq(&self, other: &Self) -> bool {
         self.created_time == other.created_time
+    }
+}
+impl<T: Default + Clone + Display> Entity<Collection<T>> {
+    pub fn show(&mut self, ui: &mut Ui, new_state: &mut String) {
+        CollapsingHeader::new(self.name()).show(ui, |ui| {
+            ui.horizontal(|ui| {
+                self.show_add_entity(ui, new_state);
+            });
+            self.show_datas(ui);
+        });
+    }
+}
+impl<T: Default + Clone> Deref for Entity<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+impl<T: Default + Clone> DerefMut for Entity<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.data
     }
 }
 pub type State = Entity<u32>;

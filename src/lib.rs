@@ -6,6 +6,8 @@ mod font;
 mod item;
 use action::Action;
 pub use app::StateManagementApp;
+use collection::Items;
+use collection::Collection;
 use collection::States;
 pub use entity::Entity;
 pub use entity::State;
