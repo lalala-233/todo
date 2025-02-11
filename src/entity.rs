@@ -39,12 +39,11 @@ impl<T: Default + Clone> PartialEq for Entity<T> {
         self.created_time == other.created_time
     }
 }
-impl<T: Default + Clone + Display> Entity<Collection<T>> {
+impl<T: Default + Clone + Display> Entity<Collection<Entity<T>>> {
+    // Item
     pub fn show(&mut self, ui: &mut Ui, new_state: &mut String) {
         CollapsingHeader::new(self.name()).show(ui, |ui| {
-            ui.horizontal(|ui| {
-                self.show_add_entity(ui, new_state);
-            });
+            self.show_add_entity(ui, new_state);
             self.show_datas(ui);
         });
     }

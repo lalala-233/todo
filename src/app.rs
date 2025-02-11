@@ -6,10 +6,10 @@ use std::time::Instant;
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 #[serde(default)]
 pub struct StateManagementApp {
-    pub items: Vec<Item>,
+    pub items: Items,
     pub actions: Vec<Action>,
     pub new_state_name: String,
-    pub new_item_type_name: String,
+    pub new_item_name: String,
     pub new_action: Action,
     #[serde(skip)]
     pub error_start_time: Option<Instant>,
@@ -18,9 +18,9 @@ pub struct StateManagementApp {
 impl eframe::App for StateManagementApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.manage_item_types(ui);
-            self.manage_actions(ui);
-            self.execute_actions(ui);
+            self.manage_items(ui);
+            // self.manage_actions(ui);
+            // self.execute_actions(ui);
             self.manage_state(ui);
         });
     }
@@ -44,17 +44,9 @@ impl StateManagementApp {
         Self::default()
     }
 
-    fn manage_item_types(&mut self, ui: &mut Ui) {
-        ui.heading("类型管理");
-        ui.label("新类型：");
-        ui.text_edit_singleline(&mut self.new_item_type_name);
-        if ui.button("添加").clicked() {
-            let name = self.new_item_type_name.trim().to_string();
-            if !name.is_empty() && !self.items.iter().any(|i| i.name() == name) {
-                self.items.push(Item::new(name));
-                self.new_item_type_name.clear();
-            }
-        }
+    fn manage_items(&mut self, ui: &mut Ui) {
+        self.items.show_add_entity(ui, &mut self.new_item_name);
+        self.items.show_names(ui);
     }
 
     fn manage_actions(&mut self, ui: &mut Ui) {
@@ -121,8 +113,6 @@ impl StateManagementApp {
 
     fn manage_state(&mut self, ui: &mut Ui) {
         ui.heading("Current State");
-        for item in &mut self.items {
-            item.show(ui, &mut self.new_state_name)
-        }
+        self.items.show(ui, &mut self.new_state_name)
     }
 }
