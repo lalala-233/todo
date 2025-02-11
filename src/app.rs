@@ -1,5 +1,5 @@
 use crate::*;
-use eframe::egui::{self, Ui};
+use eframe::egui::{self, CentralPanel, ScrollArea, Ui};
 use eframe::{Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
@@ -17,11 +17,14 @@ pub struct StateManagementApp {
 
 impl eframe::App for StateManagementApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            self.manage_items(ui);
-            // self.manage_actions(ui);
-            // self.execute_actions(ui);
-            self.manage_state(ui);
+        CentralPanel::default().show(ctx, |ui| {
+            ScrollArea::vertical().show(ui, |ui| {
+                // ui.horizontal(|ui| {todo!()}); 切换页面
+                self.manage_items(ui);
+                self.manage_actions(ui);
+                self.execute_actions(ui);
+                self.manage_state(ui);
+            })
         });
     }
 
@@ -45,12 +48,16 @@ impl StateManagementApp {
     }
 
     fn manage_items(&mut self, ui: &mut Ui) {
+        ui.heading("Items");
         self.items.show_add_entity(ui, &mut self.new_item_name);
-        self.items.show_names(ui);
+        self.items.show_delect(ui);
     }
 
     fn manage_actions(&mut self, ui: &mut Ui) {
         ui.heading("任务管理");
+        if ui.button("todo").clicked() {
+            todo!()
+        }
         // // 过渡规则表单
         // ui.horizontal(|ui| {
         //     ui.label("任务名称");
@@ -96,19 +103,21 @@ impl StateManagementApp {
 
     fn execute_actions(&mut self, ui: &mut Ui) {
         ui.heading("Execute actions");
-        for action in &self.actions {
-            ui.horizontal(|ui| {
+        // for action in &self.actions {
+        ui.horizontal(|ui| {
+            if ui.button("Execute").clicked() {
                 todo!();
-                // ui.label(&action.name);
-                // if ui.button("Execute").clicked() {
-                // self.item_types
-                //     .iter_mut()
-                //     .find(|i| i.name() == action.item_type)
-                //     .unwrap()
-                //     .execute(action);
-                // }
-            });
-        }
+            }
+            // ui.label(&action.name);
+            // if ui.button("Execute").clicked() {
+            // self.item_types
+            //     .iter_mut()
+            //     .find(|i| i.name() == action.item_type)
+            //     .unwrap()
+            //     .execute(action);
+            // }
+        });
+        // }
     }
 
     fn manage_state(&mut self, ui: &mut Ui) {
