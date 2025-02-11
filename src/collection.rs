@@ -1,22 +1,29 @@
 use crate::*;
 use eframe::egui::{Color32, Ui};
 use serde::{Deserialize, Serialize};
-use std::time::Instant;
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
-pub struct States {
-    states: Vec<State>,
+pub struct Collection<T: Entity + Clone> {
+    entitys: Vec<T>,
     #[serde(skip)]
     instant: Option<Instant>,
 }
-impl States {
+
+fn get_created_time() -> u128 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis() // 除非用户手动调整时间至 UNIX_EPOCH 以前
+}
+impl<T: Entity + Clone> Collection<T> {
     const ERROR_TIMEOUT_MILLIS: u128 = 618;
     fn should_show_error(&self) -> bool {
         self.instant
             .is_some_and(|inst| inst.elapsed().as_millis() < Self::ERROR_TIMEOUT_MILLIS)
     }
-    fn iter(&self) -> impl Iterator<Item = &State> {
-        self.states.iter()
+    fn iter(&self) -> impl Iterator<Item = &T> {
+        self.entitys.iter()
     }
     fn not_contain(&self, name: &str) -> bool {
         !self.iter().any(|s| s.name() == name)
@@ -25,43 +32,38 @@ impl States {
         // 名字存在时返回 Err
         self.not_contain(&name)
             .then(|| {
-                todo!()
-                // self.states.push(State::new(name));
+                let entity = T::new(name, get_created_time());
+                self.entitys.push(entity);
             })
             .ok_or(())
     }
-    pub fn show_select_state(&self, ui: &mut Ui, current: &mut State) {
-        self.iter().for_each(|state| {
-            let selected_value = state.clone();
-            let text = state.name();
+    pub fn show_selectable_entity(&self, ui: &mut Ui, current: &mut T) {
+        self.iter().for_each(|entity| {
             if ui
-                .selectable_label(*current == selected_value, text)
+                .selectable_label(current.eq(entity), entity.name())
                 .clicked()
             {
-                *current = state.clone();
+                *current = entity.clone();
             }
         });
     }
-    pub fn value(&self, state: &State) -> Option<u32> {
-        self.iter().find(|&s| s == state).map(|s| s.count())
-    }
-    pub fn show_counts(&self, ui: &mut Ui) {
-        self.iter().for_each(|state| {
-            ui.label(format!("{}: {}", state.name(), state.count()));
+    pub fn show_datas(&self, ui: &mut Ui) {
+        self.iter().for_each(|entity| {
+            ui.label(format!("{}: {}", entity.name(), entity.data()));
         });
     }
-    pub fn show_add_state(&mut self, ui: &mut Ui, state_name: &mut String) {
-        ui.label("添加状态：");
-        ui.text_edit_singleline(state_name);
+    pub fn show_add_entity(&mut self, ui: &mut Ui, entity_name: &mut String) {
+        ui.label("添加：");
+        ui.text_edit_singleline(entity_name);
         ui.horizontal(|ui| {
             if ui.button("清空").clicked() {
-                state_name.clear();
+                entity_name.clear();
             }
             if ui.button("添加").clicked() {
-                let trim_name = state_name.trim().to_string();
+                let trim_name = entity_name.trim().to_string();
                 if !trim_name.is_empty() {
                     match self.try_add(trim_name) {
-                        Ok(_) => state_name.clear(),
+                        Ok(_) => entity_name.clear(),
                         Err(_) => self.instant = Some(Instant::now()),
                     }
                 }
@@ -72,3 +74,7 @@ impl States {
         });
     }
 }
+
+type States = Collection<State>;
+type Items = Collection<Item>;
+type Actions = Collection<Action>;

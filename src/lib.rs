@@ -1,7 +1,9 @@
 mod action;
 mod actions;
 mod app;
+mod collection;
 mod font;
+mod entity;
 mod item;
 mod items;
 mod state;
@@ -9,6 +11,8 @@ mod states;
 use action::Action;
 use actions::Actions;
 pub use app::StateManagementApp;
+use collection::Collection;
+pub use entity::Entity;
 use item::Item;
 use items::Items;
 use state::State;
