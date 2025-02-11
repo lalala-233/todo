@@ -3,24 +3,14 @@ use std::{
     fmt::Display,
     time::{SystemTime, UNIX_EPOCH},
 };
-pub trait Entity {
-    type Data: Display;
-    fn created_time(&self) -> u128;
-    fn name(&self) -> &str;
-    fn data(&self) -> Self::Data;
-    fn new(name: String, created_time: u128) -> Self;
-    fn eq(&self, other: &Self) -> bool {
-        self.created_time() == other.created_time()
-    }
-}
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
-pub struct MyEntity<T: Default + Clone + Display> {
+pub struct Entity<T: Default + Clone + Display> {
     name: String,
     created_time: u128,
     data: T,
 }
-impl<T: Default + Clone + Display> MyEntity<T> {
+impl<T: Default + Clone + Display> Entity<T> {
     fn get_created_time() -> u128 {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -44,8 +34,9 @@ impl<T: Default + Clone + Display> MyEntity<T> {
         }
     }
 }
-impl<T: Default + Clone + Display> PartialEq for MyEntity<T> {
+impl<T: Default + Clone + Display> PartialEq for Entity<T> {
     fn eq(&self, other: &Self) -> bool {
         self.created_time == other.created_time
     }
 }
+pub type State = Entity<u32>;

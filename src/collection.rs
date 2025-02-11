@@ -1,29 +1,24 @@
 use crate::*;
 use eframe::egui::{Color32, Ui};
 use serde::{Deserialize, Serialize};
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
+use std::{fmt::Display, time::Instant};
+
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(default)]
-pub struct Collection<T: Entity + Clone> {
-    entitys: Vec<T>,
+pub struct Collection<T: Default + Clone + Display> {
+    entities: Vec<Entity<T>>,
     #[serde(skip)]
     instant: Option<Instant>,
 }
 
-fn get_created_time() -> u128 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis() // 除非用户手动调整时间至 UNIX_EPOCH 以前
-}
-impl<T: Entity + Clone> Collection<T> {
+impl<T: Default + Clone + Display> Collection<T> {
     const ERROR_TIMEOUT_MILLIS: u128 = 618;
     fn should_show_error(&self) -> bool {
         self.instant
             .is_some_and(|inst| inst.elapsed().as_millis() < Self::ERROR_TIMEOUT_MILLIS)
     }
-    fn iter(&self) -> impl Iterator<Item = &T> {
-        self.entitys.iter()
+    fn iter(&self) -> impl Iterator<Item = &Entity<T>> {
+        self.entities.iter()
     }
     fn not_contain(&self, name: &str) -> bool {
         !self.iter().any(|s| s.name() == name)
@@ -32,15 +27,15 @@ impl<T: Entity + Clone> Collection<T> {
         // 名字存在时返回 Err
         self.not_contain(&name)
             .then(|| {
-                let entity = T::new(name, get_created_time());
-                self.entitys.push(entity);
+                let entity = Entity::new(name);
+                self.entities.push(entity);
             })
             .ok_or(())
     }
-    pub fn show_selectable_entity(&self, ui: &mut Ui, current: &mut T) {
+    pub fn show_selectable_entity(&self, ui: &mut Ui, current: &mut Entity<T>) {
         self.iter().for_each(|entity| {
             if ui
-                .selectable_label(current.eq(entity), entity.name())
+                .selectable_label(current == entity, entity.name())
                 .clicked()
             {
                 *current = entity.clone();
@@ -74,7 +69,6 @@ impl<T: Entity + Clone> Collection<T> {
         });
     }
 }
-
-pub type States = Collection<State>;
-pub type Items = Collection<Item>;
-pub type Actions = Collection<Action>;
+pub type States = Collection<u32>;
+// pub type Items = Collection<Item>;
+// pub type Actions = Collection<Action>;
