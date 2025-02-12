@@ -1,8 +1,5 @@
-use crate::*;
-use eframe::egui::{CollapsingHeader, Ui};
 use serde::{Deserialize, Serialize};
 use std::{
-    fmt::Display,
     ops::{Deref, DerefMut},
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -37,14 +34,6 @@ impl<T: Default + Clone> Entity<T> {
 impl<T: Default + Clone> PartialEq for Entity<T> {
     fn eq(&self, other: &Self) -> bool {
         self.created_time == other.created_time
-    }
-}
-impl<T: Default + Clone + Display> Entity<Entities<T>> {
-    pub fn show(&mut self, ui: &mut Ui, new_state: &mut String) {
-        CollapsingHeader::new(self.name()).show(ui, |ui| {
-            self.show_add_entity(ui, new_state);
-            self.show_datas(ui);
-        });
     }
 }
 impl<T: Default + Clone> Deref for Entity<T> {

@@ -17,7 +17,6 @@ pub struct Collection<T: Default + Clone> {
 }
 
 pub type Entities<T> = Collection<Entity<T>>;
-type Collections<T> = Entities<Entities<T>>;
 impl<T: Default + Clone> Collection<T> {
     const ERROR_TIMEOUT_MILLIS: u128 = 618;
     fn should_show_error(&self) -> bool {
@@ -50,7 +49,12 @@ impl<T: Default + Clone> Entities<T> {
         }
     }
     pub fn show_delect(&mut self, ui: &mut Ui) {
-        ui.horizontal(|ui| self.show_selectable_entity(ui));
+        ui.horizontal(|ui| {
+            self.show_selectable_entity(ui);
+            if ui.button("删除").clicked() {
+                self.delect_selected()
+            }
+        });
     }
     fn not_contain(&self, name: &str) -> bool {
         !self.iter().any(|s| s.name() == name)
@@ -60,13 +64,25 @@ impl<T: Default + Clone> Entities<T> {
             ui.colored_label(Color32::RED, "状态已存在");
         }
     }
+    fn delect_selected(&mut self) {
+        if let Some(index) = self
+            .iter()
+            .position(|s| s.created_time() == self.selected_value_created_time)
+        {
+            self.remove(index);
+            self.selected_value_created_time = 0;
+        } else {
+            // self.error = Some(Instant::now())
+        };
+    }
+
     pub fn try_add(&mut self, name: &mut String) {
         let trim_name = name.trim().to_string();
         if !trim_name.is_empty() && self.not_contain(&trim_name) {
             self.push(Entity::new(trim_name));
             name.clear();
         } else {
-            self.error_start_time = Some(Instant::now())
+            // self.error = Some(Instant::now()) FIXME:
         };
     }
     pub fn show_add_entity(&mut self, ui: &mut Ui, entity_name: &mut String) {
@@ -88,12 +104,6 @@ impl<T: Default + Clone + Display> Entities<T> {
         self.iter().for_each(|entity| {
             ui.label(format!("{}: {}", entity.name(), **entity)); // as_deref()
         });
-    }
-}
-impl<T: Default + Clone + Display> Collections<T> {
-    pub fn show(&mut self, ui: &mut Ui, new_entity_name: &mut String) {
-        self.iter_mut()
-            .for_each(|entity| entity.show(ui, new_entity_name))
     }
 }
 
