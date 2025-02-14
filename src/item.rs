@@ -17,6 +17,6 @@ impl Item {
 impl Items {
     pub fn show(&mut self, ui: &mut Ui, new_entity_name: &mut String) {
         self.iter_mut()
-            .for_each(|entity| entity.show(ui, new_entity_name))
+            .for_each(|item| item.show(ui, new_entity_name))
     }
 }

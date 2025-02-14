@@ -1,50 +1,32 @@
 use crate::*;
 use eframe::egui::{Color32, Ui};
-use serde::{Deserialize, Serialize};
-use std::{
-    fmt::Display,
-    ops::{Deref, DerefMut},
-    time::Instant,
-};
+use std::fmt::Display;
 
-#[derive(Serialize, Deserialize, Default, Clone, Debug)]
-#[serde(default)]
-pub struct Collection<T: Default + Clone> {
-    entities: Vec<T>,
-    selected_value_created_time: u64,
-    #[serde(skip)]
-    error_start_time: Option<Instant>,
-}
-
-pub type Entities<T> = Collection<Entity<T>>;
+// #[derive(Serialize, Deserialize, Default, Clone, Debug)]
+// #[serde(default)]
+// pub struct Collection<T: Default + Clone> {
+//     entities: Vec<T>,
+//     selected_value_created_time: u64,
+//     #[serde(skip)]
+//     error_start_time: Option<Instant>,
+// }
+pub type Collection<T> = Entity<Vec<T>>;
+pub type Entities<T> = Collection<Entity<T>>;// Entity<Vec<Entity>>，如 Item = Entities<State>
 impl<T: Default + Clone> Collection<T> {
     const ERROR_DISPLAY_DURATION: u64 = 618; // 618ms对应约黄金分割比例
     fn should_show_error(&self) -> bool {
-        self.error_start_time
+        self.error_start_time()
             .is_some_and(|inst| (inst.elapsed().as_millis() as u64) < Self::ERROR_DISPLAY_DURATION)
     }
 }
-impl<T: Default + Clone> Deref for Collection<T> {
-    type Target = Vec<T>;
-    fn deref(&self) -> &Self::Target {
-        &self.entities
-    }
-}
-impl<T: Default + Clone> DerefMut for Collection<T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.entities
-    }
-}
-
 impl<T: Default + Clone> Entities<T> {
     fn show_selectable_entity(&mut self, ui: &mut Ui) {
-        let current = &mut self.selected_value_created_time;
-        for entity in &self.entities {
+        for entity in self.iter_mut() {
             if ui
-                .selectable_label(*current == entity.created_time(), entity.name())
+                .selectable_label(entity.is_selected(), entity.name())
                 .clicked()
             {
-                *current = entity.created_time();
+                entity.change_selected_state();
             }
         }
     }
@@ -65,15 +47,7 @@ impl<T: Default + Clone> Entities<T> {
         }
     }
     fn delete_selected(&mut self) {
-        if let Some(index) = self
-            .iter()
-            .position(|s| s.created_time() == self.selected_value_created_time)
-        {
-            self.remove(index);
-            self.selected_value_created_time = 0;
-        } else {
-            // self.error = Some(Instant::now())
-        };
+        self.retain(|entity| !entity.is_selected()) // 保留未选中
     }
 
     pub fn try_add(&mut self, name: &mut String) {
@@ -82,7 +56,7 @@ impl<T: Default + Clone> Entities<T> {
             self.push(Entity::new(trim_name));
             name.clear();
         } else {
-            // self.error = Some(Instant::now()) FIXME:
+            self.update_error_start();
         };
     }
     pub fn show_add_entity(&mut self, ui: &mut Ui, entity_name: &mut String) {
@@ -102,12 +76,10 @@ impl<T: Default + Clone> Entities<T> {
 impl<T: Default + Clone + Display> Entities<T> {
     pub fn show_datas(&self, ui: &mut Ui) {
         self.iter().for_each(|entity| {
-            ui.label(format!("{}: {}", entity.name(), **entity)); // as_deref()
+            ui.label(format!("{}: {}", entity.name(), entity.data())); 
         });
     }
 }
-
 pub type States = Collection<State>;
-pub type Items = Collection<Item>; //Collection<Entity<Collection<Entity<State>>>>;
-
+pub type Items = Collection<Item>;
 // pub type Actions = Collection<Action>;
