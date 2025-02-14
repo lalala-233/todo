@@ -11,17 +11,17 @@ use std::{
 #[serde(default)]
 pub struct Collection<T: Default + Clone> {
     entities: Vec<T>,
-    selected_value_created_time: u128,
+    selected_value_created_time: u64,
     #[serde(skip)]
     error_start_time: Option<Instant>,
 }
 
 pub type Entities<T> = Collection<Entity<T>>;
 impl<T: Default + Clone> Collection<T> {
-    const ERROR_TIMEOUT_MILLIS: u128 = 618;
+    const ERROR_DISPLAY_DURATION: u64 = 618; // 618ms对应约黄金分割比例
     fn should_show_error(&self) -> bool {
         self.error_start_time
-            .is_some_and(|inst| inst.elapsed().as_millis() < Self::ERROR_TIMEOUT_MILLIS)
+            .is_some_and(|inst| (inst.elapsed().as_millis() as u64) < Self::ERROR_DISPLAY_DURATION)
     }
 }
 impl<T: Default + Clone> Deref for Collection<T> {
@@ -48,11 +48,11 @@ impl<T: Default + Clone> Entities<T> {
             }
         }
     }
-    pub fn show_delect(&mut self, ui: &mut Ui) {
+    pub fn show_delete(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
             self.show_selectable_entity(ui);
             if ui.button("删除").clicked() {
-                self.delect_selected()
+                self.delete_selected()
             }
         });
     }
@@ -64,7 +64,7 @@ impl<T: Default + Clone> Entities<T> {
             ui.colored_label(Color32::RED, "状态已存在");
         }
     }
-    fn delect_selected(&mut self) {
+    fn delete_selected(&mut self) {
         if let Some(index) = self
             .iter()
             .position(|s| s.created_time() == self.selected_value_created_time)

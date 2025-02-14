@@ -50,7 +50,7 @@ impl StateManagementApp {
     fn manage_items(&mut self, ui: &mut Ui) {
         ui.heading("Items");
         self.items.show_add_entity(ui, &mut self.new_item_name);
-        self.items.show_delect(ui);
+        self.items.show_delete(ui);
     }
 
     fn manage_actions(&mut self, ui: &mut Ui) {

@@ -7,17 +7,17 @@ use std::{
 #[serde(default)]
 pub struct Entity<T: Default + Clone> {
     name: String,
-    created_time: u128,
+    created_time: u64,
     data: T,
 }
 impl<T: Default + Clone> Entity<T> {
-    fn get_created_time() -> u128 {
+    fn get_created_time() -> u64 {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
-            .as_millis() // 除非用户手动调整时间至 UNIX_EPOCH 以前
+            .as_millis() as u64 // 除非用户手动调整时间至 UNIX_EPOCH 以前，u64 表示到 5 亿年后
     }
-    pub fn created_time(&self) -> u128 {
+    pub fn created_time(&self) -> u64 {
         self.created_time
     }
     pub fn name(&self) -> &str {
@@ -32,6 +32,7 @@ impl<T: Default + Clone> Entity<T> {
     }
 }
 impl<T: Default + Clone> PartialEq for Entity<T> {
+    // 采用简化实现，需要确保 created_time 唯一
     fn eq(&self, other: &Self) -> bool {
         self.created_time == other.created_time
     }
