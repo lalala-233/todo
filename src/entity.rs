@@ -160,6 +160,7 @@ mod tests {
     #[test]
     fn test_entity_equality() {
         let mut entity1 = Entity::<u32>::new("A".to_string());
+        std::thread::sleep(Duration::from_nanos(114));
         let entity2 = Entity::<u32>::new("A".to_string());
         assert_ne!(entity1, entity2);
 
