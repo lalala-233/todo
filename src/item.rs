@@ -4,7 +4,7 @@ use eframe::egui::{CollapsingHeader, Ui};
 pub type Item = Entity<States>;
 
 impl Item {
-    pub fn execute(&mut self, action: &Action) {
+    pub fn execute(&mut self, _action: &Action) {
         todo!()
     }
     pub fn show(&mut self, ui: &mut Ui, new_state: &mut String) {

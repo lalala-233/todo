@@ -40,7 +40,7 @@ impl<T: Default + Clone> Entity<T> {
     fn update_error_start(&mut self) {
         self.error_start_time = Some(Instant::now())
     }
-    fn created_time(&self) -> u64 {
+    fn _created_time(&self) -> u64 {
         self.created_time
     }
     pub fn name(&self) -> &str {
@@ -153,7 +153,7 @@ mod tests {
     fn test_entity_creation() {
         let entity = Entity::<u32>::new("Test".to_string());
         assert_eq!(entity.name(), "Test");
-        assert!(entity.created_time() > 0);
+        assert!(entity._created_time() > 0);
         assert_eq!(*entity.data(), 0);
     }
 
