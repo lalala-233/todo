@@ -9,8 +9,9 @@ impl Item {
     }
     pub fn show(&mut self, ui: &mut Ui, new_state: &mut String) {
         CollapsingHeader::new(self.name()).show(ui, |ui| {
-            self.show_add_entity(ui, new_state);
+            self.show_add(ui, new_state);
             self.show_datas(ui);
+            self.show_delete(ui);
         });
     }
 }

@@ -7,7 +7,7 @@ use std::time::Instant;
 #[serde(default)]
 pub struct StateManagementApp {
     pub items: Items,
-    pub actions: Vec<Action>,
+    // pub actions: Vec<Action>,
     pub new_state_name: String,
     pub new_item_name: String,
     pub new_action: Action,
@@ -49,7 +49,7 @@ impl StateManagementApp {
 
     fn manage_items(&mut self, ui: &mut Ui) {
         ui.heading("Items");
-        self.items.show_add_entity(ui, &mut self.new_item_name);
+        self.items.show_add(ui, &mut self.new_item_name);
         self.items.show_delete(ui);
     }
 
