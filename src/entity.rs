@@ -123,9 +123,8 @@ impl<T: Default + Clone> Entities<T> {
     pub fn show_add(&mut self, ui: &mut Ui, entity_name: &mut String) {
         ui.horizontal(|ui| {
             ui.label("添加：");
-            let response= ui.text_edit_singleline(entity_name); 
-            let should_add =response.lost_focus()
-                && ui.input(|i| i.key_pressed(Key::Enter));
+            let response = ui.text_edit_singleline(entity_name);
+            let should_add = response.lost_focus() && ui.input(|i| i.key_pressed(Key::Enter));
             if ui.button("清空").clicked() {
                 entity_name.clear();
             }
@@ -153,7 +152,7 @@ mod tests {
     use std::time::Duration;
 
     #[test]
-    fn test_entity_creation() {
+    fn new() {
         let entity = Entity::<u32>::new("Test".to_string());
         assert_eq!(entity.name(), "Test");
         assert!(entity._created_time() > 0);
@@ -161,7 +160,7 @@ mod tests {
     }
 
     #[test]
-    fn test_entity_equality() {
+    fn eq() {
         let mut entity1 = Entity::<u32>::new("A".to_string());
         std::thread::sleep(Duration::from_nanos(114));
         let entity2 = Entity::<u32>::new("A".to_string());
@@ -174,7 +173,7 @@ mod tests {
     }
 
     #[test]
-    fn test_error_display_timing() {
+    fn error_display_time() {
         let mut entity = Entity::<u32>::default();
         assert!(!entity.should_show_error());
 
@@ -182,13 +181,13 @@ mod tests {
         assert!(entity.should_show_error());
 
         // 模拟时间流逝
-        let past = Instant::now() - Duration::from_millis(Entity::<u32>::ERROR_NANO_DURATION);
+        let past = Instant::now() - Duration::from_nanos(Entity::<u32>::ERROR_NANO_DURATION);
         entity.error_start_time = Some(past);
         assert!(!entity.should_show_error());
     }
 
     #[test]
-    fn test_collection_operations() {
+    fn collection_operations() {
         let mut collection = Collection::<State>::default();
         let name = "New".to_string();
 
@@ -209,7 +208,7 @@ mod tests {
     }
 
     #[test]
-    fn test_selection_logic() {
+    fn is_selected() {
         let mut entity = Entity::<u32>::default();
         assert!(!entity.is_selected());
 
@@ -221,7 +220,7 @@ mod tests {
     }
 
     #[test]
-    fn test_deref_operations() {
+    fn deref() {
         let mut entity = Entity {
             data: 42u32,
             ..Default::default()
@@ -236,7 +235,7 @@ mod tests {
     }
 
     #[test]
-    fn test_not_contain_validation() {
+    fn not_contain() {
         let mut collection = Collection::<State>::default();
         collection.push(Entity::new("Exist".to_string()));
 
@@ -246,7 +245,7 @@ mod tests {
 
     // 测试UI相关方法（需要模拟egui上下文）
     // #[test]
-    // fn test_ui_components() {
+    // fn ui_components() {
     // let mut ctx = egui::CtxRef::default();
     // let _ = ctx.run(egui::RawInput::default(), |ctx| {
     //     let mut ui = ctx.begin_window(egui::Id::new("test")).unwrap();
