@@ -1,5 +1,5 @@
 use crate::*;
-use eframe::egui::{Color32, Ui};
+use eframe::egui::{Color32, Key, Ui};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt::Display,
@@ -123,12 +123,15 @@ impl<T: Default + Clone> Entities<T> {
     pub fn show_add(&mut self, ui: &mut Ui, entity_name: &mut String) {
         ui.horizontal(|ui| {
             ui.label("添加：");
-            ui.text_edit_singleline(entity_name);
+            let response= ui.text_edit_singleline(entity_name); 
+            let should_add =response.lost_focus()
+                && ui.input(|i| i.key_pressed(Key::Enter));
             if ui.button("清空").clicked() {
                 entity_name.clear();
             }
-            if ui.button("添加").clicked() {
+            if ui.button("添加").clicked() || should_add {
                 self.try_add(entity_name);
+                response.request_focus();
             }
             self.try_show_error(ui);
         });
